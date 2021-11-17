@@ -1,6 +1,12 @@
 // Idan Turkenits 326685815
 #include "ex2.h"
 
+/*****************************************************
+* input : int a
+* output : magnitude
+* function operation: converts the given integer to
+* the magnitude form.
+******************************************************/
 magnitude int_to_magnitude(int a){
     if(a >= 0){
         return a;
@@ -9,6 +15,12 @@ magnitude int_to_magnitude(int a){
     }
 }
 
+/*****************************************************
+* input : magnitude a
+* output : int
+* function operation: converts the given magnitude to
+* the integer form.
+******************************************************/
 int magnitude_to_int(magnitude a){
     if(a > 0){
         return a;
@@ -16,7 +28,11 @@ int magnitude_to_int(magnitude a){
         return -(~(1 << 31) & a);
     }
 }
-
+/*****************************************************
+* input : magnitude, magnitude
+* output : magnitude
+* function operation: adds the given magnitudes
+******************************************************/
 magnitude add(magnitude a, magnitude b){
     int a_int = magnitude_to_int(a);
     int b_int = magnitude_to_int(b);
@@ -29,6 +45,11 @@ magnitude add(magnitude a, magnitude b){
     }
 }
 
+/*****************************************************
+* input : magnitude, magnitude
+* output : magnitude
+* function operation: substruct the given magnitudes
+******************************************************/
 magnitude sub(magnitude a, magnitude b){
     int a_int = magnitude_to_int(a);
     int b_int = magnitude_to_int(b);
@@ -41,6 +62,11 @@ magnitude sub(magnitude a, magnitude b){
     }
 }
 
+/*****************************************************
+* input : magnitude, magnitude
+* output : magnitude
+* function operation: multiply the given magnitudes
+******************************************************/
 magnitude multi(magnitude a, magnitude b){
     int a_int = magnitude_to_int(a);
     int b_int = magnitude_to_int(b);
@@ -53,9 +79,21 @@ magnitude multi(magnitude a, magnitude b){
         return int_to_magnitude(mult | (1 << 31));
     }
 }
+
+/*********************************************************
+* input : magnitude a, magnitude b
+* output : int
+* function operation: returns 1 if a > b, else returns 0
+**********************************************************/
 int greater(magnitude a, magnitude b){
     return magnitude_to_int(a) > magnitude_to_int(b);
 }
+
+/*********************************************************
+* input : magnitude a, magnitude b
+* output : int
+* function operation: returns 1 if a = b, else returns 0
+**********************************************************/
 int equal(magnitude a, magnitude b){
     return magnitude_to_int(a) == magnitude_to_int(b);
 }
