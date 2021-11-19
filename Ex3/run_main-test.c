@@ -19,7 +19,7 @@ void run_main() {
 	p2.len = len;
 
 	// select which function to run
+	printf("%d\n", pstrlen(&p1));
 	scanf("%d", &opt);
 	run_func(opt, &p1, &p2);
-
 }
