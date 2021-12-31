@@ -55,31 +55,33 @@ pstrijcpy: # rdi = Pstring* dst, rsi = Pstring* src , rdx = char i, rcx = char j
     pushq   %rbp # setup
     movq    %rsp, %rbp # setup
     push    %rdi
-    movsx   %dl, %rdx
+    movq    $0, %r9
+    movb    %dl, %r9B
+    movq    %r9, %rdx
     # input validation:
     # validate with dst string
-    cmpb    %cl, (%rdi) # len(dst) : j
-    jle     invalid_input
-    cmpb    %dl, (%rdi) # len(dst) : j
-    jle     invalid_input
+    cmpb    (%rdi), %cl # len(dst) : j
+    jae     invalid_input
+    cmpb    (%rdi), %dl  # len(dst) : j
+    jae     invalid_input
 
     # validate with src string
-    cmpb    %cl, (%rsi) # len(dst) : j
-    jle     invalid_input
-    cmpb    %dl, (%rsi) # len(dst) : j
-    jle     invalid_input
+    cmpb     (%rsi), %cl # len(dst) : j
+    jae     invalid_input
+    cmpb    (%rsi), %dl # len(dst) : j
+    jae     invalid_input
 
     incq    %rdi # dst = dst + 1
     incq    %rsi # src = src + 1
     cmpb    %cl,%dl # i : j
-    jg      finish_pstrijcpy
+    ja      finish_pstrijcpy
 
 loop_pstrijcpy:
     movb    (%rsi, %rdx), %r8B
     movb    %r8B, (%rdi, %rdx)
-    incb    %dl
+    incq    %rdx
     cmpb    %cl , %dl # i : j
-    jg      finish_pstrijcpy
+    ja      finish_pstrijcpy
     jmp     loop_pstrijcpy
 invalid_input:
     movq    $invalid_input_str, %rdi
@@ -139,45 +141,47 @@ finish_swap_case:
 pstrijcmp: # rdi = Pstring* dst, rsi = Pstring* src , rdx = char i, rcx = char j
     pushq   %rbp # setup
     movq    %rsp, %rbp # setup
-    movsx   %dl, %rdx
-    # input validation:
+    movq    $0, %r9
+    movb    %dl, %r9B
+    movq    %r9, %rdx
+     # input validation:
     # validate with dst string
-    cmpb    %cl, (%rdi) # len(dst) : j
-    jle     invalid_input_pstrijcmp
-    cmpb    %dl, (%rdi) # len(dst) : j
-    jle     invalid_input_pstrijcmp
+    cmpb    (%rdi), %cl # len(dst) : j
+    jae     invalid_input_pstrijcmp
+    cmpb    (%rdi), %dl  # len(dst) : j
+    jae     invalid_input_pstrijcmp
 
     # validate with src string
-    cmpb    %cl, (%rsi) # len(dst) : j
-    jle     invalid_input_pstrijcmp
-    cmpb    %dl, (%rsi) # len(dst) : j
-    jle     invalid_input_pstrijcmp
+    cmpb     (%rsi), %cl # len(dst) : j
+    jae     invalid_input_pstrijcmp
+    cmpb    (%rsi), %dl # len(dst) : j
+    jae     invalid_input_pstrijcmp
 
     incq    %rdi # dst = dst + 1
     incq    %rsi # src = src + 1
     cmpb    %cl,%dl # i : j
-    jg      finish_pstrijcpy
+    ja      finish_pstrijcpy
 
 loop_pstrijcmp:
     movb    (%rsi, %rdx), %r8B
     cmpb    %r8B, (%rdi, %rdx) # str1[i] : str2[i]
-    jg      greater_pstrijcmp
-    jl      smaller_pstrijcmp
+    ja      greater_pstrijcmp # if str1[i] > str2[i]
+    jl      smaller_pstrijcmp # if str1[i] < str2[i]
     movq    $0, %rax
-    incb    %dl
+    incq    %rdx
     cmpb    %cl , %dl # i : j
-    jg      finish_pstrijcmp
+    ja      finish_pstrijcmp
     jmp     loop_pstrijcmp
-invalid_input_pstrijcmp:
+invalid_input_pstrijcmp: # if the input is invalid 
     movq    $invalid_input_str, %rdi
     movq    $0, %rax
     call    printf
     movq    $-2, %rax
     jmp finish_pstrijcmp
-greater_pstrijcmp:
+greater_pstrijcmp: # if str1[i] > str2[i] 
     movq    $1, %rax
-    jmp finish_pstrijcmp
-smaller_pstrijcmp:
+    jmp     finish_pstrijcmp
+smaller_pstrijcmp: # if str1[i] < str2[i]
     movq    $-1, %rax
 finish_pstrijcmp:
     movq    %rbp, %rsp # Finish

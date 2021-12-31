@@ -1,5 +1,8 @@
+//idan turkenits 326685815
+
 #include <stdio.h>
 #include "pstring.h"
+
 
 void run_main() {
 
@@ -13,13 +16,10 @@ void run_main() {
 	scanf("%s", p1.str);
 	p1.len = len;
 
-	// initialize second pstring
 	scanf("%d", &len);
 	scanf("%s", p2.str);
 	p2.len = len;
 
 	// select which function to run
-	printf("%d\n", pstrlen(&p1));
-	scanf("%d", &opt);
-	run_func(opt, &p1, &p2);
+	printf("%d", pstrijcmp(&p1, &p2, 0,2));
 }
