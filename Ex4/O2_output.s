@@ -13,10 +13,14 @@ arith:
 	endbr64
 	movl	%edx, %r8d
 	leal	(%rdi,%rsi), %edx
-	xorl	%eax, %eax
-	movl	$1, %edi
-	imull	%r8d, %edx
 	leaq	.LC0(%rip), %rsi
+	movl	$1, %edi
+	movl	%edx, %eax
+	shrl	$31, %eax
+	addl	%eax, %edx
+	xorl	%eax, %eax
+	sarl	%edx
+	imull	%r8d, %edx
 	leal	(%rdx,%rdx,2), %edx
 	sall	$4, %edx
 	jmp	__printf_chk@PLT
@@ -83,37 +87,110 @@ sumAndSave:
 .LFB36:
 	.cfi_startproc
 	endbr64
+	movl	$0, (%rdx)
 	testl	%esi, %esi
-	jle	.L11
-	leal	-1(%rsi), %ecx
-	movl	(%rdx), %eax
-	leaq	4(%rdi,%rcx,4), %rcx
+	jle	.L8
+	leal	-1(%rsi), %eax
+	leaq	4(%rdi,%rax,4), %rcx
+	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
 .L10:
 	addl	(%rdi), %eax
 	addq	$4, %rdi
 	movl	%eax, (%rdx)
-	cmpq	%rcx, %rdi
+	cmpq	%rdi, %rcx
 	jne	.L10
-.L11:
-	xorl	%eax, %eax
+.L8:
 	ret
 	.cfi_endproc
 .LFE36:
 	.size	sumAndSave, .-sumAndSave
+	.p2align 4
+	.globl	multArrBy2
+	.type	multArrBy2, @function
+multArrBy2:
+.LFB37:
+	.cfi_startproc
+	endbr64
+	testl	%esi, %esi
+	jle	.L13
+	leal	-1(%rsi), %eax
+	leaq	4(%rdi,%rax,4), %rax
+	.p2align 4,,10
+	.p2align 3
+.L15:
+	sall	(%rdi)
+	addq	$4, %rdi
+	cmpq	%rax, %rdi
+	jne	.L15
+.L13:
+	ret
+	.cfi_endproc
+.LFE37:
+	.size	multArrBy2, .-multArrBy2
+	.p2align 4
+	.globl	returnSumWithBias
+	.type	returnSumWithBias, @function
+returnSumWithBias:
+.LFB38:
+	.cfi_startproc
+	endbr64
+	testl	%esi, %esi
+	jle	.L20
+	imull	%ecx, %edx
+	leal	-1(%rsi), %eax
+	leaq	4(%rdi,%rax,4), %rcx
+	xorl	%eax, %eax
+	.p2align 4,,10
+	.p2align 3
+.L19:
+	movl	(%rdi), %esi
+	addq	$4, %rdi
+	addl	%edx, %esi
+	addl	%esi, %eax
+	cmpq	%rcx, %rdi
+	jne	.L19
+	ret
+	.p2align 4,,10
+	.p2align 3
+.L20:
+	xorl	%eax, %eax
+	ret
+	.cfi_endproc
+.LFE38:
+	.size	returnSumWithBias, .-returnSumWithBias
 	.section	.text.startup,"ax",@progbits
 	.p2align 4
 	.globl	main
 	.type	main, @function
 main:
-.LFB37:
+.LFB39:
 	.cfi_startproc
 	endbr64
+	subq	$40, %rsp
+	.cfi_def_cfa_offset 48
+	movdqa	.LC2(%rip), %xmm0
+	movq	%fs:40, %rax
+	movq	%rax, 24(%rsp)
 	xorl	%eax, %eax
+	movq	%rsp, %rdi
+	movl	$0, 16(%rsp)
+	movaps	%xmm0, (%rsp)
+	call	lower
+	movq	24(%rsp), %rax
+	xorq	%fs:40, %rax
+	jne	.L25
+	xorl	%eax, %eax
+	addq	$40, %rsp
+	.cfi_remember_state
+	.cfi_def_cfa_offset 8
 	ret
+.L25:
+	.cfi_restore_state
+	call	__stack_chk_fail@PLT
 	.cfi_endproc
-.LFE37:
+.LFE39:
 	.size	main, .-main
 	.globl	d
 	.data
@@ -134,6 +211,11 @@ c:
 	.size	x, 4
 x:
 	.long	100
+	.section	.rodata.cst16,"aM",@progbits,16
+	.align 16
+.LC2:
+	.quad	5717073776924706120
+	.quad	4475986
 	.ident	"GCC: (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0"
 	.section	.note.GNU-stack,"",@progbits
 	.section	.note.gnu.property,"a"
